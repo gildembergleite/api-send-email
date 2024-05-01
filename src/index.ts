@@ -5,6 +5,7 @@ import nodemailer from 'nodemailer'
 const app = express()
 const port = process.env.PORT
 
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.get('/', (_, res: Response) => {
@@ -13,7 +14,7 @@ app.get('/', (_, res: Response) => {
 
 app.post('/:to', (req: Request, res: Response) => {
     const { to } = req.params
-    const { subject, text } = req.body
+    const { subject, message } = req.body
 
     const transporter = nodemailer.createTransport({
         service: "Gmail",
@@ -27,10 +28,10 @@ app.post('/:to', (req: Request, res: Response) => {
     })
 
     const mailOptions = {
-      from: process.env.FROM_EMAIL,
-      to,
-      subject,
-      text,
+        from: process.env.FROM_EMAIL,
+        to,
+        subject,
+        text: message,
     }
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -39,6 +40,12 @@ app.post('/:to', (req: Request, res: Response) => {
             res.status(500).send('Erro ao enviar o email')
         } else {
             console.log('Email enviado: ' + info.response)
+            const refererURL = req.get('referer')
+            
+            if (refererURL) {
+                res.redirect(refererURL)
+            }
+
             res.status(200).send('Email enviado com sucesso')
         }
     })
