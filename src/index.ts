@@ -1,6 +1,7 @@
 import bodyParser from 'body-parser'
 import express, { Request, Response } from 'express'
 import nodemailer from 'nodemailer'
+import Mail from 'nodemailer/lib/mailer'
 
 const app = express()
 const port = process.env.PORT
@@ -14,7 +15,9 @@ app.get('/', (_, res: Response) => {
 
 app.post('/:to', (req: Request, res: Response) => {
     const { to } = req.params
-    const { subject, message } = req.body
+    const { name, email, subject, message } = req.body
+
+    console.log(req)
 
     const transporter = nodemailer.createTransport({
         service: "Gmail",
@@ -27,11 +30,17 @@ app.post('/:to', (req: Request, res: Response) => {
         }
     })
 
-    const mailOptions = {
+    const text = `
+Nome: ${name}
+Email: ${email}
+Mensagem: ${message}
+`
+
+    const mailOptions: Mail.Options = {
         from: process.env.FROM_EMAIL,
         to,
         subject,
-        text: message,
+        text,
     }
 
     transporter.sendMail(mailOptions, (error, info) => {
