@@ -46,9 +46,10 @@ Mensagem: ${message}
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.log(error)
-            res.status(500).send('Erro ao enviar o email')
-        } else {
-            console.log('Email enviado: ' + info.response)
+            return res.status(500).send('Erro ao enviar o email')
+        } 
+        
+        console.log('Email enviado: ' + info.response)
             const refererURL = req.get('referer')
             
             if (refererURL) {
@@ -56,7 +57,6 @@ Mensagem: ${message}
             }
 
             res.status(200).send('Email enviado com sucesso')
-        }
     })
 })
 
